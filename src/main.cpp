@@ -1,27 +1,26 @@
-#include <fstream>
-#include <iostream>
+#include <QCoreApplication>
+#include <QFile>
+#include <QTextStream>
 
-int main() {
-    constexpr const char* output_path = "test.csv";
+int main(int argc, char* argv[]) {
+    QCoreApplication app(argc, argv);
+    QFile output(QStringLiteral("test.csv"));
 
-    std::ofstream output(output_path, std::ios::out | std::ios::trunc);
-    if (!output.is_open()) {
-        std::cerr << "Failed to open " << output_path << " for writing.\n";
+    if (!output.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        QTextStream(stderr) << "Cannot open test.csv: " << output.errorString() << '\n';
         return 1;
     }
 
-    output << "test" << ",3333";
-    if (!output) {
-        std::cerr << "Failed to write to " << output_path << ".\n";
+    QTextStream stream(&output);
+    stream << "test,3333\n";
+    stream.flush();
+
+    if (stream.status() != QTextStream::Ok) {
+        QTextStream(stderr) << "Cannot write test.csv.\n";
         return 1;
     }
 
     output.close();
-    if (!output) {
-        std::cerr << "Failed to close " << output_path << ".\n";
-        return 1;
-    }
-
-    std::cout << "Wrote test to " << output_path << ".\n";
+    QTextStream(stdout) << "Wrote test,3333 to test.csv.\n";
     return 0;
 }
